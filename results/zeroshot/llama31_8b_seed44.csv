@@ -1,0 +1,2 @@
+model,seed,method,kv_side,bits_per_dim,c1_rounding,arc_c,hellaswag,piqa,winogrande,mmlu,mean,wall_s
+llama31_8b,44,FP16,fp16,16.0,-,39.5,49.5,80.5,72.0,35.5,55.4,88.6334114074707

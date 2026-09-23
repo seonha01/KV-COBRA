@@ -10,5 +10,5 @@ data/
 results/logs/
 *.log
 
-# reproduction outputs are committed explicitly at release time
-results/
+# reproduction outputs: CSVs are committed, logs/json are not
+results/**/*.json
