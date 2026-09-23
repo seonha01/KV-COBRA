@@ -32,7 +32,10 @@ def summarize(base: Path, bits: list[float] | None):
     ppl = _load("ppl", base)
     if not ppl.empty:
         # per (model, seed, method, bpd): mean over datasets → then over seeds
-        g = (ppl.groupby(["model", "seed", "method", "bits_per_dim"])["ppl"].mean()
+        if "c1_rounding" not in ppl.columns:
+            ppl["c1_rounding"] = "floor"
+        ppl["c1_rounding"] = ppl["c1_rounding"].fillna("floor")
+        g = (ppl.groupby(["model", "seed", "method", "bits_per_dim", "c1_rounding"])["ppl"].mean()
              .reset_index())
         g["metric"] = "ppl"
         out.append(g.rename(columns={"ppl": "value"}))
@@ -40,7 +43,10 @@ def summarize(base: Path, bits: list[float] | None):
         d = _load(kind, base)
         if d.empty:
             continue
-        g = d[["model", "seed", "method", "bits_per_dim", "mean"]].copy()
+        if "c1_rounding" not in d.columns:
+            d["c1_rounding"] = "floor"
+        d["c1_rounding"] = d["c1_rounding"].fillna("floor")
+        g = d[["model", "seed", "method", "bits_per_dim", "c1_rounding", "mean"]].copy()
         g["metric"] = kind
         out.append(g.rename(columns={"mean": "value"}))
     if not out:
@@ -49,7 +55,8 @@ def summarize(base: Path, bits: list[float] | None):
     df = pd.concat(out, ignore_index=True)
     if bits:
         df = df[df.bits_per_dim.isin(bits) | (df.method == "FP16")]
-    agg = (df.groupby(["metric", "model", "method", "bits_per_dim"])["value"]
+    df.loc[df.method == "FP16", "c1_rounding"] = "-"
+    agg = (df.groupby(["metric", "model", "method", "bits_per_dim", "c1_rounding"])["value"]
            .agg(["mean", "std", "count"]).reset_index())
     agg["std"] = agg["std"].fillna(0.0)
     return agg
@@ -75,17 +82,17 @@ def main() -> None:
                  "longbench": "LongBench F1 (5-task mean, ↑)"}[metric]
         print(f"\n## {label}")
         if a.markdown:
-            print("| model | method | bpd | mean ± std | seeds |")
-            print("|---|---|---|---|---|")
+            print("| model | method | bpd | C1 rounding | mean ± std | seeds |")
+            print("|---|---|---|---|---|---|")
         for model in MODEL_ORDER:
             for method in METHOD_ORDER:
                 rows = sub[(sub.model == model) & (sub.method == method)].sort_values("bits_per_dim")
                 for _, r in rows.iterrows():
                     bpd = "fp16" if r.method == "FP16" else f"{r.bits_per_dim:.1f}"
                     if a.markdown:
-                        print(f"| {model} | {method} | {bpd} | {r['mean']:.2f} ± {r['std']:.2f} | {int(r['count'])} |")
+                        print(f"| {model} | {method} | {bpd} | {r['c1_rounding']} | {r['mean']:.2f} ± {r['std']:.2f} | {int(r['count'])} |")
                     else:
-                        print(f"  {model:<12} {method:<13} {bpd:>5}  {r['mean']:8.2f} ± {r['std']:5.2f}  (n={int(r['count'])})")
+                        print(f"  {model:<12} {method:<13} {bpd:>5} [{r['c1_rounding']:<5}] {r['mean']:8.2f} ± {r['std']:5.2f}  (n={int(r['count'])})")
 
 
 if __name__ == "__main__":

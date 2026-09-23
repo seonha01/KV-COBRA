@@ -74,10 +74,11 @@ def calibrate(model, tokenizer, arch: ModelArch, n_cal: int = 32,
     return calib
 
 
-def make_specs(variants, bits, kv_side: str, seed: int) -> list[KVCobraSpec]:
+def make_specs(variants, bits, kv_side: str, seed: int,
+               c1_rounding: str = "floor") -> list[KVCobraSpec]:
     """Cartesian product of variants × bits (variant-major, like the paper runs)."""
     return [KVCobraSpec(variant=v, bits_per_dim=float(b), kv_side=kv_side,
-                        hadamard_seed=seed)
+                        hadamard_seed=seed, c1_rounding=c1_rounding)
             for v in variants for b in bits]
 
 
@@ -92,12 +93,20 @@ class ResultTable:
         self.key_cols = key_cols
         self.rows: list[dict] = []
         if self.path.exists():
-            self.rows = pd.read_csv(self.path).to_dict("records")
+            df = pd.read_csv(self.path)
+            if "c1_rounding" not in df.columns:      # files written before the option existed
+                df["c1_rounding"] = "floor"
+            self.rows = df.to_dict("records")
 
     def _key(self, row: dict) -> tuple:
         out = []
         for c in self.key_cols:
             v = row.get(c)
+            if c == "c1_rounding":
+                if row.get("method") == "FP16":
+                    v = "-"                                    # FP16 has no allocation
+                elif v is None or v != v:                      # missing / NaN → floor
+                    v = "floor"
             out.append(float(v) if c == "bits_per_dim" else v)
         return tuple(out)
 

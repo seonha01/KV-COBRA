@@ -38,11 +38,40 @@ Paper seeds: **43, 44, 45, 46, 47**. Coverage in the paper's own runs
 `scripts/run_queue.py` reproduces the union of this (it also fills the few
 cells the paper did not run).
 
+## 2b. Two C1 rounding modes — read this before comparing numbers
+
+While re-running the paper's experiments we found that its result CSVs were
+produced by **two versions of the C1 solver** (`optimal_rank_bits`):
+
+| rows in `reference/paper` | C1 bit-width rule | in this repo |
+|---|---|---|
+| 0.5 and 1.0 bpd, all seeds; every row of seeds 46–47 | `b = B // r` (feasible, `r·b ≤ B`) | `--c1-rounding floor` (**default**, identical to the released code) |
+| 1.5–4.0 bpd, seeds 43–45 | `b = int(round(B / r))` (legacy; may exceed the budget slightly) | `--c1-rounding round` |
+
+The original sweep (April) used the legacy rule; the rule was then fixed to
+floor division, and only the 0.5/1.0 bpd cells (plus the extra seeds 46–47)
+were re-run with the fixed code. The two rules give the *same* numbers to all
+printed digits wherever they coincide, but at 1.5–3.0 bpd they differ a lot,
+e.g. Llama-3.1-8B, seed 43, WikiText-2 PPL:
+
+| bpd | KV-COBRA-MSE floor | KV-COBRA-MSE round (paper) | KV-COBRA-KL floor | KV-COBRA-KL round (paper) |
+|---|---|---|---|---|
+| 1.5 | 17.55 | 13.03 | 10.83 | 7.36 |
+| 2.0 | 14.23 | 6.84 | 7.19 | 6.68 |
+| 2.5 | 6.14 | 6.11 | 6.17 | 6.04 |
+| 4.0 | 5.79 | 5.80 | 5.78 | 5.78 |
+
+`scripts/verify_against_paper.py` knows this provenance (`expected_mode`) and
+compares every reference row with the reproduced row of the matching mode;
+`scripts/run_queue.py` runs both modes where needed. Both are bit-exact
+against the paper CSVs (see the verification report in the README).
+
 ## 3. Running
 
 ```bash
 python scripts/download_longbench.py          # once; prints md5 ✓ against the paper copy
-python scripts/run_queue.py --gpus 0 1 2      # everything, resumable
+python scripts/run_queue.py --gpus 0 1 2      # everything (both rounding modes), resumable
+python scripts/run_queue.py --gpus 0 1 2 --skip-released-sweep   # omit floor @1.5-4.0 for zs/LB
 scripts/status.sh                             # progress
 python scripts/verify_against_paper.py        # compare with reference/paper
 python scripts/summarize_results.py --bits 1.0 --markdown   # Table-1 style summary

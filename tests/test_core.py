@@ -129,3 +129,15 @@ def test_compressor_hooks_change_only_configured_heads():
     assert comp.allocation_table() == [{"layer": 0, "head": 0, "rank": 4, "bits": 2, "budget": 8}]
     after = m.model.layers[0].self_attn.k_proj(x).reshape(1, T, nH, d)
     assert torch.equal(after, ref)                        # hooks removed
+
+
+def test_c1_round_mode_matches_legacy_rounding_and_may_exceed_budget():
+    lam = _spectrum(decay=0.03)
+    B = 256
+    r_f, b_f = optimal_rank_bits(lam, B=B, d=128, rounding="floor")
+    r_r, b_r = optimal_rank_bits(lam, B=B, d=128, rounding="round")
+    assert r_f * b_f <= B                       # floor is always feasible
+    assert b_r == min(8, int(round(B / r_r)))   # legacy definition
+    import pytest
+    with pytest.raises(ValueError):
+        optimal_rank_bits(lam, B=B, rounding="ceil")

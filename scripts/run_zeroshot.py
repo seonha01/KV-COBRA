@@ -37,6 +37,9 @@ def main() -> None:
     p.add_argument("--bits", nargs="+", type=float, default=list(PAPER_BITS))
     p.add_argument("--variants", nargs="+", default=list(VARIANTS), choices=VARIANTS)
     p.add_argument("--kv-side", default="k_only")
+    p.add_argument("--c1-rounding", default="floor", choices=["floor", "round"],
+                   help="C1 bit-width rounding: floor = released code (default); "
+                        "round = legacy behaviour behind the paper's 1.5-4.0 bpd sweep points")
     p.add_argument("--benchmarks", nargs="+", default=list(DEFAULT_BENCHMARKS))
     p.add_argument("--max-samples", type=int, default=200)
     p.add_argument("--n-cal", type=int, default=32)
@@ -55,20 +58,21 @@ def main() -> None:
     cfg = ZeroShotConfig(benchmarks=tuple(a.benchmarks), max_samples=a.max_samples)
 
     table = ResultTable(a.out_dir / f"{short}_seed{a.seed}.csv",
-                        key_cols=("method", "kv_side", "bits_per_dim"))
+                        key_cols=("method", "kv_side", "bits_per_dim", "c1_rounding"))
     if len(table):
         log(f"resuming from {table.path} ({len(table)} rows)")
 
-    if not table.has(method="FP16", kv_side="fp16", bits_per_dim=16.0):
+    if not table.has(method="FP16", kv_side="fp16", bits_per_dim=16.0, c1_rounding="-"):
         tc = time.time()
         scores = eval_zeroshot(model, tokenizer, cfg)
         table.add({"model": short, "seed": a.seed, "method": "FP16", "kv_side": "fp16",
-                   "bits_per_dim": 16.0, **scores, "wall_s": time.time() - tc})
+                   "bits_per_dim": 16.0, "c1_rounding": "-", **scores, "wall_s": time.time() - tc})
         log(f"  FP16 mean={scores['mean']:.2f}  [{time.time() - tc:.0f}s]")
 
-    specs = make_specs(a.variants, a.bits, a.kv_side, a.seed)
+    specs = make_specs(a.variants, a.bits, a.kv_side, a.seed, a.c1_rounding)
     for i, spec in enumerate(specs, 1):
-        if table.has(method=spec.name, kv_side=spec.kv_side, bits_per_dim=spec.bits_per_dim):
+        if table.has(method=spec.name, kv_side=spec.kv_side, bits_per_dim=spec.bits_per_dim,
+                     c1_rounding=spec.c1_rounding):
             log(f"[{i:2d}/{len(specs)}] {spec.name:<12} {spec.bits_per_dim:.1f}b  (done)")
             continue
         tc = time.time()
@@ -76,7 +80,7 @@ def main() -> None:
         scores = eval_zeroshot(model, tokenizer, cfg, compressor=comp)
         table.add({"model": short, "seed": a.seed, "method": spec.name,
                    "kv_side": spec.kv_side, "bits_per_dim": spec.bits_per_dim,
-                   **scores, "wall_s": time.time() - tc})
+                   "c1_rounding": spec.c1_rounding, **scores, "wall_s": time.time() - tc})
         log(f"[{i:2d}/{len(specs)}] {spec.name:<12} {spec.bits_per_dim:.1f}b "
             f"mean={scores['mean']:.2f}  [{time.time() - tc:.0f}s]")
         del comp

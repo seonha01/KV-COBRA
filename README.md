@@ -12,6 +12,10 @@ reused.
 > by operation from the experiment code behind the paper. The paper's own
 > result CSVs ship in `reference/paper/` and `scripts/verify_against_paper.py`
 > checks a re-run against them (perplexities agree to every printed digit).
+> One caveat you must know: the paper's bit-sweep points at 1.5–4.0 bpd
+> (seeds 43–45) were produced by an older rounding rule in the C1 solver;
+> this repo exposes it as `--c1-rounding round` next to the released
+> `floor` rule. See [`docs/REPRODUCTION.md`](docs/REPRODUCTION.md#2b-two-c1-rounding-modes--read-this-before-comparing-numbers).
 
 ---
 
@@ -33,7 +37,7 @@ D(r, b) = Σ_{i>r} λ_i  +  q(b) · Σ_{i≤r} λ_i ,       q(b) = 2^(-2b) / 12
 
 | Level | What it decides | Code |
 |---|---|---|
-| **C1** — per-head rank/bit-width | for a given head budget `B`, `(r*, b*) = argmin D(r,b)` s.t. `r·b ≤ B` (enumerate even `r`, `b = ⌊B/r⌋ ∈ [2, 8]`) | `kvcobra/allocation.py::optimal_rank_bits` |
+| **C1** — per-head rank/bit-width | for a given head budget `B`, `(r*, b*) = argmin D(r,b)` s.t. `r·b ≤ B` (enumerate even `r`, `b = ⌊B/r⌋ ∈ [2, 8]`; `c1_rounding="round"` reproduces the legacy `round(B/r)` rule) | `kvcobra/allocation.py::optimal_rank_bits` |
 | **C2** — cross-head budget | redistribute the global budget `bpd·d` per head so that all heads sit at (approximately) the same marginal distortion: damped water-filling, 5 rounds | `kvcobra/allocation.py::water_filling_budgets` |
 | **KL reordering** (main method) | replace `λ_i` by `w_i = σ²_{Q,i}·σ²_{K,i}` — the query variance along direction `i` times the key eigenvalue — and re-sort the basis by `w`. C1/C2 then minimize an attention-KL surrogate instead of key MSE | `kvcobra/allocation.py::query_variance`, `reorder_by_attention_kl` |
 | **Rotate-and-quantize** | random Hadamard transform on the `r` latents (flattens the per-channel variance, Gaussianizes) followed by one uniform `b`-bit quantizer per head | `kvcobra/hadamard.py`, `kvcobra/compressor.py` |

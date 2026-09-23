@@ -7,6 +7,12 @@ Every cell present in *both* is compared on its score column(s):
     zeroshot   → mean + 5 tasks
     longbench  → mean + 5 tasks
 
+The paper's CSVs mix two C1 rounding modes (see docs/REPRODUCTION.md):
+rows at 0.5 / 1.0 bpd and every row of seeds 46–47 come from the released
+``floor`` code, rows at 1.5–4.0 bpd of seeds 43–45 from the legacy
+``round`` code. Each reference row is therefore compared with the
+reproduced row of the *matching* mode (``expected_mode``).
+
 Prints a per-kind table of matched cells, max |Δ|, and lists any cell whose
 difference exceeds ``--atol``. Exit status 1 if any such cell exists.
 
@@ -34,6 +40,15 @@ SCORE_COLS = {
 }
 
 
+def expected_mode(seed: int, bits: float, method: str) -> str:
+    """Which C1 rounding produced a given reference row."""
+    if method == "FP16":
+        return "-"
+    if bits <= 1.0 or int(seed) in (46, 47):
+        return "floor"
+    return "round"
+
+
 def _load_dir(d: Path) -> pd.DataFrame:
     files = sorted(d.glob("*_seed*.csv"))
     if not files:
@@ -49,7 +64,15 @@ def compare(kind: str, atol: float, results_dir: Path, reference_dir: Path):
         print(f"[{kind}] reference rows={len(ref)} reproduced rows={len(new)} — nothing to compare")
         return 0, 0, []
     cols = [c for c in cols if c in ref.columns and c in new.columns]
-    m = ref.merge(new, on=keys, suffixes=("_paper", "_repro"))
+    ref = ref.copy()
+    ref["c1_rounding"] = [expected_mode(s, b, mth) for s, b, mth
+                          in zip(ref.seed, ref.bits_per_dim, ref.method)]
+    if "c1_rounding" not in new.columns:
+        new = new.copy(); new["c1_rounding"] = "floor"
+    new = new.copy()
+    new.loc[new.method == "FP16", "c1_rounding"] = "-"
+    new["c1_rounding"] = new["c1_rounding"].fillna("floor")
+    m = ref.merge(new, on=keys + ["c1_rounding"], suffixes=("_paper", "_repro"))
     bad = []
     max_abs = 0.0
     for _, r in m.iterrows():
@@ -66,9 +89,10 @@ def compare(kind: str, atol: float, results_dir: Path, reference_dir: Path):
         # per-model / per-method summary of max |Δ| on the primary score
         prim = cols[0]
         m["absdiff"] = (m[f"{prim}_paper"] - m[f"{prim}_repro"]).abs()
-        summ = m.groupby(["model", "method"])["absdiff"].agg(["count", "max"])
-        for (model, method), row in summ.iterrows():
-            print(f"    {model:<12} {method:<13} n={int(row['count']):3d}  max|Δ{prim}|={row['max']:.3e}")
+        summ = m.groupby(["model", "method", "c1_rounding"])["absdiff"].agg(["count", "max"])
+        for (model, method, mode), row in summ.iterrows():
+            print(f"    {model:<12} {method:<13} [{mode:<5}] n={int(row['count']):3d}  "
+                  f"max|Δ{prim}|={row['max']:.3e}")
     for key, c, a, b, d in bad[:40]:
         print(f"    MISMATCH {key} {c}: paper={a:.6f} repro={b:.6f} |Δ|={d:.3e}")
     if len(bad) > 40:

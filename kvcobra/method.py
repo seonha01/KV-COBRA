@@ -51,6 +51,7 @@ class KVCobraSpec:
     kv_side: str = "k_only"
     k_fraction: float = 0.5            # only for kv_asymmetric
     hadamard_seed: int = 42            # the only random element
+    c1_rounding: str = "floor"         # "floor" (released) | "round" (legacy, see allocation.py)
 
     @property
     def name(self) -> str:
@@ -61,6 +62,8 @@ class KVCobraSpec:
             raise ValueError(f"variant must be one of {list(VARIANT_NAMES)}")
         if self.kv_side not in ("k_only", "v_only", "kv_symmetric", "kv_asymmetric"):
             raise ValueError(f"unknown kv_side {self.kv_side!r}")
+        if self.c1_rounding not in ("floor", "round"):
+            raise ValueError("c1_rounding must be 'floor' or 'round'")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -69,7 +72,8 @@ class KVCobraSpec:
 
 
 def _rank_bit_configs(eig, basis, nL: int, nH: int, d: int,
-                      budgets: dict[Key, int], min_rank: int = 2) -> dict[Key, dict]:
+                      budgets: dict[Key, int], min_rank: int = 2,
+                      rounding: str = "floor") -> dict[Key, dict]:
     """Run C1 on every head at its budget and emit ``svdq`` configs."""
     cfgs: dict[Key, dict] = {}
     for li in range(nL):
@@ -77,7 +81,8 @@ def _rank_bit_configs(eig, basis, nL: int, nH: int, d: int,
             B = budgets[(li, hi)]
             ev = eig[(li, hi)]
             V_full, _ = basis[(li, hi)]
-            r, b = optimal_rank_bits(ev, B=B, d=d, min_rank=min_rank, min_bits=2)
+            r, b = optimal_rank_bits(ev, B=B, d=d, min_rank=min_rank, min_bits=2,
+                                     rounding=rounding)
             b = max(2, min(8, b))
             r = max(min_rank, min(d, B // b))
             cfgs[(li, hi)] = {
@@ -135,22 +140,26 @@ def build_kv_cobra(
     else:
         q_var = None
 
+    rnd = spec.c1_rounding
+
     def k_side(bpd: float) -> dict[Key, dict]:
         B_avg = int(bpd * d)
         if spec.variant == "kl":
             w_eig, reord_basis = reorder_by_attention_kl(
                 calib.k_eig, calib.k_basis, q_var, nL, nH)
-            budgets = water_filling_budgets(w_eig, B_avg, nL, nH, d)
-            cfgs = _rank_bit_configs(w_eig, reord_basis, nL, nH, d, budgets)
+            budgets = water_filling_budgets(w_eig, B_avg, nL, nH, d, rounding=rnd)
+            cfgs = _rank_bit_configs(w_eig, reord_basis, nL, nH, d, budgets, rounding=rnd)
         else:
-            budgets = water_filling_budgets(calib.k_eig, B_avg, nL, nH, d)
-            cfgs = _rank_bit_configs(calib.k_eig, calib.k_basis, nL, nH, d, budgets)
+            budgets = water_filling_budgets(calib.k_eig, B_avg, nL, nH, d, rounding=rnd)
+            cfgs = _rank_bit_configs(calib.k_eig, calib.k_basis, nL, nH, d, budgets,
+                                     rounding=rnd)
         return _attach_hadamard(cfgs, spec.hadamard_seed, sign_cache)
 
     def v_side(bpd: float) -> dict[Key, dict]:
         B_avg = int(bpd * d)
         budgets = uniform_budgets(B_avg, nL, nH)
-        cfgs = _rank_bit_configs(calib.v_eig, calib.v_basis, nL, nH, d, budgets)
+        cfgs = _rank_bit_configs(calib.v_eig, calib.v_basis, nL, nH, d, budgets,
+                                 rounding=rnd)
         return _attach_hadamard(cfgs, spec.hadamard_seed, sign_cache)
 
     if spec.kv_side == "k_only":

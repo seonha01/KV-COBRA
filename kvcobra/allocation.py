@@ -46,6 +46,9 @@ def bennett_distortion(bits: int) -> float:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
+ROUNDING_MODES = ("floor", "round")
+
+
 def optimal_rank_bits(
     eigenvalues: np.ndarray,
     B: int,
@@ -53,12 +56,23 @@ def optimal_rank_bits(
     min_rank: int = 2,
     min_bits: int = MIN_BITS,
     max_bits: int = MAX_BITS,
+    rounding: str = "floor",
 ) -> tuple[int, int]:
-    """C1: ``(r*, b*) = argmin D(r, b)`` s.t. ``r * b <= B``.
+    """C1: ``(r*, b*) = argmin D(r, b)`` over the even rank grid.
 
     Candidate ranks are ``2, 4, ..., min(d, B // min_bits)``; for each rank
-    the bit-width is ``B // r`` (floor division keeps every candidate
-    feasible), clipped to ``[min_bits, max_bits]``.
+    the bit-width is derived from ``B / r`` and clipped to
+    ``[min_bits, max_bits]``.
+
+    ``rounding`` selects how ``b`` is derived from ``B / r``:
+
+    * ``"floor"`` – ``b = B // r``. Every candidate satisfies ``r * b <= B``.
+      This is the released code and the default.
+    * ``"round"`` – ``b = int(round(B / r))``. Legacy behaviour of the code
+      that produced the paper's bit-sweep points at 1.5–4.0 bits/dim for
+      seeds 43–45 (see ``docs/REPRODUCTION.md``). It can pick pairs with
+      ``r * b`` slightly above ``B`` (e.g. ``B=256, r=34 → b=8``), which at
+      2–3 bits/dim buys noticeably lower perplexity than the feasible grid.
 
     Args:
         eigenvalues: descending spectrum (length ``d``); may also be the
@@ -67,6 +81,8 @@ def optimal_rank_bits(
     Returns:
         ``(r, b)``.
     """
+    if rounding not in ROUNDING_MODES:
+        raise ValueError(f"rounding must be one of {ROUNDING_MODES}")
     lam = np.asarray(eigenvalues, dtype=np.float64)
     if lam.sum() < 1e-30:
         r = max(min_rank, B // max(min_bits, 1))
@@ -81,7 +97,7 @@ def optimal_rank_bits(
 
     best_r, best_b, best_D = rs[0], min_bits, float("inf")
     for r in rs:
-        b_int = B // r
+        b_int = B // r if rounding == "floor" else int(round(B / r))
         if b_int < min_bits:
             continue
         b_int = min(b_int, max_bits)
@@ -118,6 +134,7 @@ def water_filling_budgets(
     d: int = 128,
     iterations: int = 5,
     damping: float = 0.3,
+    rounding: str = "floor",
 ) -> dict[Key, int]:
     """C2: equalize per-head distortion by moving budget between heads.
 
@@ -126,6 +143,8 @@ def water_filling_budgets(
     * damping`` bits toward heads whose distortion is above average. The
     total is then renormalized to ``avg_B * n_layers * n_heads``. Budgets
     never drop below ``B_min = max(4, avg_B // 4)``.
+
+    ``rounding`` is forwarded to C1 (see :func:`optimal_rank_bits`).
 
     Returns:
         ``{(layer, head): integer budget}``.
@@ -138,7 +157,8 @@ def water_filling_budgets(
         distortions: dict[Key, float] = {}
         for key, B in budgets.items():
             ev = eigvals[key]
-            r, b = optimal_rank_bits(ev, B=B, d=d, min_rank=2, min_bits=2)
+            r, b = optimal_rank_bits(ev, B=B, d=d, min_rank=2, min_bits=2,
+                                     rounding=rounding)
             b = max(2, min(8, b))
             r = max(2, min(d, B // b))
             distortions[key] = head_distortion(ev, r, b)

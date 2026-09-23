@@ -37,6 +37,9 @@ def main() -> None:
     p.add_argument("--bits", nargs="+", type=float, default=list(PAPER_BITS))
     p.add_argument("--variants", nargs="+", default=list(VARIANTS), choices=VARIANTS)
     p.add_argument("--kv-side", default="k_only")
+    p.add_argument("--c1-rounding", default="floor", choices=["floor", "round"],
+                   help="C1 bit-width rounding: floor = released code (default); "
+                        "round = legacy behaviour behind the paper's 1.5-4.0 bpd sweep points")
     p.add_argument("--datasets", nargs="+", default=["wikitext2", "ptb", "c4"])
     p.add_argument("--n-eval-tokens", type=int, default=32768)
     p.add_argument("--window", type=int, default=2048)
@@ -65,7 +68,7 @@ def main() -> None:
         log(f"  {ds}: {ids_by_ds[ds].shape[1]} tokens")
 
     table = ResultTable(a.out_dir / f"{short}_seed{a.seed}.csv",
-                        key_cols=("method", "kv_side", "bits_per_dim", "dataset"))
+                        key_cols=("method", "kv_side", "bits_per_dim", "c1_rounding", "dataset"))
     if len(table):
         log(f"resuming from {table.path} ({len(table)} rows)")
 
@@ -79,15 +82,16 @@ def main() -> None:
         ppl = eval_ppl(model, ids, cfg)
         fp16[ds] = ppl
         table.add({"model": short, "seed": a.seed, "method": "FP16", "kv_side": "fp16",
-                   "bits_per_dim": 16.0, "dataset": ds, "ppl": ppl, "delta": 0.0,
+                   "bits_per_dim": 16.0, "c1_rounding": "-", "dataset": ds, "ppl": ppl, "delta": 0.0,
                    "wall_s": 0.0})
         log(f"  FP16 {ds:<9} PPL={ppl:.4f}")
 
     # ── KV-COBRA cells ────────────────────────────────────────────────────
-    specs = make_specs(a.variants, a.bits, a.kv_side, a.seed)
+    specs = make_specs(a.variants, a.bits, a.kv_side, a.seed, a.c1_rounding)
     for i, spec in enumerate(specs, 1):
         todo = [ds for ds in ids_by_ds if not table.has(
-            method=spec.name, kv_side=spec.kv_side, bits_per_dim=spec.bits_per_dim, dataset=ds)]
+            method=spec.name, kv_side=spec.kv_side, bits_per_dim=spec.bits_per_dim,
+            c1_rounding=spec.c1_rounding, dataset=ds)]
         if not todo:
             log(f"[{i:2d}/{len(specs)}] {spec.name:<12} {spec.bits_per_dim:.1f}b  (done)")
             continue
@@ -97,7 +101,7 @@ def main() -> None:
             ppl = eval_ppl(model, ids_by_ds[ds], cfg, compressor=comp)
             table.add({"model": short, "seed": a.seed, "method": spec.name,
                        "kv_side": spec.kv_side, "bits_per_dim": spec.bits_per_dim,
-                       "dataset": ds, "ppl": ppl, "delta": ppl - fp16[ds],
+                       "c1_rounding": spec.c1_rounding, "dataset": ds, "ppl": ppl, "delta": ppl - fp16[ds],
                        "wall_s": time.time() - tc})
             log(f"[{i:2d}/{len(specs)}] {spec.name:<12} {spec.bits_per_dim:.1f}b "
                 f"{ds:<9} PPL={ppl:9.3f}  Δ={ppl - fp16[ds]:+9.3f}  [{time.time() - tc:.0f}s]")

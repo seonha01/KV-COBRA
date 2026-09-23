@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 """Run the whole paper matrix as a job queue over several GPUs.
 
-Each job is one ``(kind, model, seed, bits)`` invocation of a runner script.
-Jobs are ordered so that the cheap/most-important cells finish first:
+Each job is one ``(kind, model, seed, bits, c1_rounding)`` invocation of a
+runner script. Jobs are ordered so that the cheap / most important cells
+finish first:
 
-    1. PPL, every model × seed, full bit sweep                (~1.5 h / model)
-    2. zero-shot + LongBench at 0.5 and 1.0 bpd, all 5 seeds    (paper Table 1)
-    3. zero-shot + LongBench at the remaining bits, seeds 43–45 (paper Fig. 4)
+    1. PPL, floor rounding, every model × seed, full bit sweep
+    2. PPL, round (legacy) rounding, seeds 43–45, full bit sweep
+    3. zero-shot + LongBench, floor, 0.5 and 1.0 bpd, all 5 seeds   (paper Table 1)
+    4. zero-shot + LongBench, round,  1.5–4.0 bpd, seeds 43–45      (paper Fig. 4 points)
+    5. zero-shot + LongBench, floor,  1.5–4.0 bpd, seeds 43–45      (released code)
+
+See docs/REPRODUCTION.md for why two C1 rounding modes exist.
 
 Workers (one per GPU) pull the next job; every runner is resumable, so the
 queue can be stopped and restarted at any time.
@@ -35,38 +40,44 @@ HEADLINE_BITS = (0.5, 1.0)
 SWEEP_SEEDS = (43, 44, 45)
 
 
-def build_jobs(models, seeds, kinds, full_sweep_all_seeds: bool):
+def build_jobs(models, seeds, kinds, full_sweep_all_seeds: bool, skip_released_sweep: bool):
     jobs = []
+    rest = tuple(b for b in PAPER_BITS if b not in HEADLINE_BITS)
+    sweep_seeds = [s for s in seeds if full_sweep_all_seeds or s in SWEEP_SEEDS]
     if "ppl" in kinds:
         for m in models:
             for s in seeds:
-                jobs.append(("ppl", m, s, PAPER_BITS))
-    for kind in ("zeroshot", "longbench"):
-        if kind not in kinds:
-            continue
+                jobs.append(("ppl", m, s, PAPER_BITS, "floor"))
+        for m in models:
+            for s in sweep_seeds:
+                jobs.append(("ppl", m, s, PAPER_BITS, "round"))
+    gen_kinds = [k for k in ("zeroshot", "longbench") if k in kinds]
+    for kind in gen_kinds:
         for m in models:
             for s in seeds:
-                jobs.append((kind, m, s, HEADLINE_BITS))
-    rest = tuple(b for b in PAPER_BITS if b not in HEADLINE_BITS)
-    for kind in ("zeroshot", "longbench"):
-        if kind not in kinds:
-            continue
+                jobs.append((kind, m, s, HEADLINE_BITS, "floor"))
+    for kind in gen_kinds:
         for m in models:
-            for s in seeds:
-                if full_sweep_all_seeds or s in SWEEP_SEEDS:
-                    jobs.append((kind, m, s, rest))
+            for s in sweep_seeds:
+                jobs.append((kind, m, s, rest, "round"))
+    if not skip_released_sweep:
+        for kind in gen_kinds:
+            for m in models:
+                for s in sweep_seeds:
+                    jobs.append((kind, m, s, rest, "floor"))
     return jobs
 
 
 def worker(gpu: str, q: Queue, log_dir: Path, dry: bool):
     while True:
         try:
-            kind, model, seed, bits = q.get_nowait()
+            kind, model, seed, bits, rounding = q.get_nowait()
         except Exception:
             return
         cmd = [sys.executable, str(ROOT / "scripts" / RUNNER[kind]),
-               "--model", model, "--seed", str(seed), "--bits", *[str(b) for b in bits]]
-        tag = f"{kind}_{model}_seed{seed}_{'-'.join(str(b) for b in bits)}"
+               "--model", model, "--seed", str(seed), "--c1-rounding", rounding,
+               "--bits", *[str(b) for b in bits]]
+        tag = f"{kind}_{model}_seed{seed}_{rounding}_{'-'.join(str(b) for b in bits)}"
         print(f"[gpu{gpu}] START {tag}  {time.strftime('%H:%M:%S')}", flush=True)
         if dry:
             q.task_done()
@@ -90,11 +101,13 @@ def main() -> None:
     p.add_argument("--kinds", nargs="+", default=["ppl", "zeroshot", "longbench"])
     p.add_argument("--full-sweep-all-seeds", action="store_true",
                    help="run the full bit sweep for every seed (paper: seeds 43-45 only)")
+    p.add_argument("--skip-released-sweep", action="store_true",
+                   help="omit priority-5 jobs (floor rounding at 1.5-4.0 bpd for zero-shot/LongBench)")
     p.add_argument("--log-dir", type=Path, default=ROOT / "results" / "logs")
     p.add_argument("--dry-run", action="store_true")
     a = p.parse_args()
 
-    jobs = build_jobs(a.models, a.seeds, a.kinds, a.full_sweep_all_seeds)
+    jobs = build_jobs(a.models, a.seeds, a.kinds, a.full_sweep_all_seeds, a.skip_released_sweep)
     print(f"{len(jobs)} jobs on GPUs {a.gpus}")
     q: Queue = Queue()
     for j in jobs:
