@@ -1,0 +1,22 @@
+model,seed,model_id,method,kv_side,bits_per_dim,k_fraction,dataset,ppl,delta,wall_s,paper_ref
+mistral7b,47,mistralai/Mistral-7B-v0.3,FP16,fp16,16.0,1.0,wikitext2,4.769393256094344,0.0,0.0,
+mistral7b,47,mistralai/Mistral-7B-v0.3,FP16,fp16,16.0,1.0,ptb,27.0479747521626,0.0,0.0,
+mistral7b,47,mistralai/Mistral-7B-v0.3,FP16,fp16,16.0,1.0,c4,7.621898369710543,0.0,0.0,
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-MSE,k_only,0.5,0.5,wikitext2,9.012770287321391,4.243377031227049,26.488041639328003,Ours (this repo); KV-COBRA with MSE allocator
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-MSE,k_only,0.5,0.5,ptb,80.77186531434513,53.72389056218253,26.48615288734436,Ours (this repo); KV-COBRA with MSE allocator
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-MSE,k_only,0.5,0.5,c4,18.26938503280873,10.647486663098192,26.607596397399902,Ours (this repo); KV-COBRA with MSE allocator
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-MSE,k_only,1.0,0.5,wikitext2,7.434605163909059,2.665211907814715,29.088444709777832,Ours (this repo); KV-COBRA with MSE allocator
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-MSE,k_only,1.0,0.5,ptb,55.47821719609964,28.43024244393704,29.1199598312378,Ours (this repo); KV-COBRA with MSE allocator
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-MSE,k_only,1.0,0.5,c4,13.744402757600046,6.122504387889503,29.1109721660614,Ours (this repo); KV-COBRA with MSE allocator
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-KL,k_only,0.5,0.5,wikitext2,8.18974838241791,3.4203551263235665,26.579238414764404,Ours; KL reordering + Hadamard rotation
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-KL,k_only,0.5,0.5,ptb,84.02896199354107,56.98098724137847,26.59416484832764,Ours; KL reordering + Hadamard rotation
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-KL,k_only,0.5,0.5,c4,14.562475350371884,6.940576980661342,26.69829821586609,Ours; KL reordering + Hadamard rotation
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-KL,k_only,1.0,0.5,wikitext2,5.635851214605409,0.8664579585110648,28.96822118759156,Ours; KL reordering + Hadamard rotation
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-KL,k_only,1.0,0.5,ptb,32.812592661772364,5.764617909609761,28.950405597686768,Ours; KL reordering + Hadamard rotation
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-KL,k_only,1.0,0.5,c4,9.210487128114975,1.588588758404434,28.91159105300904,Ours; KL reordering + Hadamard rotation
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-MSE,k_only,2.0,0.5,wikitext2,5.202794529677273,0.4334012735829287,31.150667428970337,Ours (this repo); KV-COBRA with MSE allocator
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-MSE,k_only,2.0,0.5,ptb,27.100124585585828,0.0521498334232291,30.988539695739743,Ours (this repo); KV-COBRA with MSE allocator
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-MSE,k_only,2.0,0.5,c4,8.437238719358728,0.815340349648185,31.027530193328857,Ours (this repo); KV-COBRA with MSE allocator
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-KL,k_only,2.0,0.5,wikitext2,5.047170422467935,0.2777771663735908,30.95922040939331,Ours; KL reordering + Hadamard rotation
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-KL,k_only,2.0,0.5,ptb,26.531152955671928,-0.516821796490671,31.11314034461975,Ours; KL reordering + Hadamard rotation
+mistral7b,47,mistralai/Mistral-7B-v0.3,KV-COBRA-KL,k_only,2.0,0.5,c4,8.147415806326935,0.5255174366163917,31.182743787765503,Ours; KL reordering + Hadamard rotation

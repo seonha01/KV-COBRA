@@ -1,0 +1,22 @@
+model,seed,model_id,method,kv_side,bits_per_dim,k_fraction,dataset,ppl,delta,wall_s,paper_ref
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,FP16,fp16,16.0,1.0,wikitext2,6.070705291555834,0.0,0.0,
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,FP16,fp16,16.0,1.0,ptb,10.89807906469378,0.0,0.0,
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,FP16,fp16,16.0,1.0,c4,11.53562201259251,0.0,0.0,
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,0.5,0.5,wikitext2,10.173733126784558,4.103027835228724,18.226462841033936,Ours (this repo); KV-COBRA with MSE allocator
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,0.5,0.5,ptb,19.67406098869381,8.775981924000034,17.99112105369568,Ours (this repo); KV-COBRA with MSE allocator
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,0.5,0.5,c4,19.598115104282623,8.062493091690113,17.965235948562622,Ours (this repo); KV-COBRA with MSE allocator
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,1.0,0.5,wikitext2,8.139199548933572,2.068494257377738,18.87268233299256,Ours (this repo); KV-COBRA with MSE allocator
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,1.0,0.5,ptb,15.039861814506736,4.141782749812956,18.89071536064148,Ours (this repo); KV-COBRA with MSE allocator
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,1.0,0.5,c4,15.994101756623875,4.458479744031367,18.90564274787903,Ours (this repo); KV-COBRA with MSE allocator
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,0.5,0.5,wikitext2,10.2992346592748,4.228529367718966,18.173903942108154,Ours; KL reordering + Hadamard rotation
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,0.5,0.5,ptb,20.05056341384432,9.152484349150535,18.171602487564087,Ours; KL reordering + Hadamard rotation
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,0.5,0.5,c4,20.371889625819342,8.836267613226836,18.323384046554565,Ours; KL reordering + Hadamard rotation
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,1.0,0.5,wikitext2,8.146045854345365,2.075340562789531,18.840797185897827,Ours; KL reordering + Hadamard rotation
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,1.0,0.5,ptb,14.860681931834742,3.962602867140962,18.841368436813354,Ours; KL reordering + Hadamard rotation
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,1.0,0.5,c4,16.25364978245218,4.718027769859669,18.771270275115967,Ours; KL reordering + Hadamard rotation
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,2.0,0.5,wikitext2,7.462730929365064,1.3920256378092306,19.419017553329468,Ours (this repo); KV-COBRA with MSE allocator
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,2.0,0.5,ptb,13.649341227598637,2.7512621629048546,19.354432106018063,Ours (this repo); KV-COBRA with MSE allocator
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,2.0,0.5,c4,14.103691091095056,2.568069078502546,19.37015008926392,Ours (this repo); KV-COBRA with MSE allocator
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,2.0,0.5,wikitext2,7.014218330528693,0.943513038972859,19.089782238006592,Ours; KL reordering + Hadamard rotation
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,2.0,0.5,ptb,12.464695603394338,1.5666165387005575,19.11586880683899,Ours; KL reordering + Hadamard rotation
+qwen25_7b,47,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,2.0,0.5,c4,13.642040051077055,2.106418038484545,19.16206979751587,Ours; KL reordering + Hadamard rotation

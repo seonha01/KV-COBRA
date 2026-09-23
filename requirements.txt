@@ -1,0 +1,13 @@
+# Versions used for the paper runs and for the reproduction in this repo
+# (Python 3.11, CUDA 12.1). Newer versions should work but were not checked
+# for bit-exactness.
+torch==2.5.1
+transformers==5.5.3
+datasets==4.8.4
+huggingface_hub>=0.25
+accelerate==1.13.0
+numpy==1.26.4
+pandas>=2.0
+sentencepiece
+safetensors
+pytest

@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+# downloaded data
+data/
+# experiment outputs (results are kept in results/ locally; commit only when final)
+results/logs/
+*.log
+
+# reproduction outputs are committed explicitly at release time
+results/

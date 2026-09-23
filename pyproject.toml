@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kvcobra"
+version = "1.0.0"
+description = "KV-COBRA: KV cache compression via co-optimized bit-rank allocation"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = [
+    "torch>=2.4",
+    "transformers>=4.45",
+    "datasets>=3.0",
+    "huggingface_hub>=0.25",
+    "accelerate>=1.0",
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "sentencepiece",
+    "safetensors",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+include = ["kvcobra*"]

@@ -1,0 +1,22 @@
+model,seed,model_id,method,kv_side,bits_per_dim,k_fraction,dataset,ppl,delta,wall_s,paper_ref
+llama31_8b,47,meta-llama/Llama-3.1-8B,FP16,fp16,16.0,1.0,wikitext2,5.710827988708767,0.0,0.0,
+llama31_8b,47,meta-llama/Llama-3.1-8B,FP16,fp16,16.0,1.0,ptb,8.539556579543753,0.0,0.0,
+llama31_8b,47,meta-llama/Llama-3.1-8B,FP16,fp16,16.0,1.0,c4,8.755488862528864,0.0,0.0,
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-MSE,k_only,0.5,0.5,wikitext2,15.966984627741729,10.256156639032962,27.26632738113404,Ours (this repo); KV-COBRA with MSE allocator
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-MSE,k_only,0.5,0.5,ptb,28.405775085035945,19.866218505492192,27.354707717895508,Ours (this repo); KV-COBRA with MSE allocator
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-MSE,k_only,0.5,0.5,c4,41.88207710977069,33.12658824724183,27.693825244903564,Ours (this repo); KV-COBRA with MSE allocator
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-MSE,k_only,1.0,0.5,wikitext2,17.178215387211306,11.467387398502538,30.38097310066223,Ours (this repo); KV-COBRA with MSE allocator
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-MSE,k_only,1.0,0.5,ptb,26.332352073107888,17.792795493564135,30.120538234710693,Ours (this repo); KV-COBRA with MSE allocator
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-MSE,k_only,1.0,0.5,c4,33.883591513834226,25.12810265130536,30.14594340324402,Ours (this repo); KV-COBRA with MSE allocator
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-KL,k_only,0.5,0.5,wikitext2,17.148304188987208,11.43747620027844,27.53678250312805,Ours; KL reordering + Hadamard rotation
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-KL,k_only,0.5,0.5,ptb,33.24784561822114,24.70828903867739,27.572853088378903,Ours; KL reordering + Hadamard rotation
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-KL,k_only,0.5,0.5,c4,50.94199438261434,42.18650552008548,27.643178939819336,Ours; KL reordering + Hadamard rotation
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-KL,k_only,1.0,0.5,wikitext2,12.37602523191994,6.665197243211174,29.991548776626587,Ours; KL reordering + Hadamard rotation
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-KL,k_only,1.0,0.5,ptb,19.43313396729709,10.89357738775334,29.877790212631226,Ours; KL reordering + Hadamard rotation
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-KL,k_only,1.0,0.5,c4,25.43657177180596,16.681082909277094,29.8079845905304,Ours; KL reordering + Hadamard rotation
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-MSE,k_only,2.0,0.5,wikitext2,13.692183799855991,7.981355811147224,31.295374870300293,Ours (this repo); KV-COBRA with MSE allocator
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-MSE,k_only,2.0,0.5,ptb,21.90688543020057,13.367328850656818,31.12026000022888,Ours (this repo); KV-COBRA with MSE allocator
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-MSE,k_only,2.0,0.5,c4,27.34398703127952,18.58849816875065,30.91069221496582,Ours (this repo); KV-COBRA with MSE allocator
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-KL,k_only,2.0,0.5,wikitext2,7.267507145000488,1.5566791562917208,30.738049030303955,Ours; KL reordering + Hadamard rotation
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-KL,k_only,2.0,0.5,ptb,10.781255579019277,2.2416989994755223,30.84320878982544,Ours; KL reordering + Hadamard rotation
+llama31_8b,47,meta-llama/Llama-3.1-8B,KV-COBRA-KL,k_only,2.0,0.5,c4,13.062333443616676,4.306844581087811,30.793139934539795,Ours; KL reordering + Hadamard rotation

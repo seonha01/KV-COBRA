@@ -1,0 +1,46 @@
+model,seed,model_id,method,kv_side,bits_per_dim,k_fraction,dataset,ppl,delta,wall_s,paper_ref
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,FP16,fp16,16.0,1.0,wikitext2,6.070705291555834,0.0,0.0,
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,1.5,0.5,wikitext2,7.517003432341375,1.446298140785541,20.65302014350891,Ours (this repo); KV-ROBIN + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,2.0,0.5,wikitext2,7.088434759857044,1.0177294683012104,20.43011951446533,Ours (this repo); KV-ROBIN + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,2.5,0.5,wikitext2,6.371312064198382,0.3006067726425483,20.439128160476685,Ours (this repo); KV-ROBIN + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,3.0,0.5,wikitext2,6.297716553735274,0.22701126217944,20.52480387687683,Ours (this repo); KV-ROBIN + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,4.0,0.5,wikitext2,6.165353567090347,0.0946482755345128,20.47447299957276,Ours (this repo); KV-ROBIN + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,1.5,0.5,wikitext2,7.188063519259057,1.1173582277032228,19.582494497299194,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,2.0,0.5,wikitext2,6.807012585168894,0.7363072936130601,19.80264711380005,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,2.5,0.5,wikitext2,6.53766274396202,0.4669574524061861,19.644121646881104,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,3.0,0.5,wikitext2,6.476535416791606,0.4058301252357719,19.829278469085693,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,4.0,0.5,wikitext2,6.304941301003151,0.2342360094473168,19.82624626159668,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,FP16,fp16,16.0,1.0,ptb,10.89807906469378,0.0,0.0,
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,FP16,fp16,16.0,1.0,c4,11.53562201259251,0.0,0.0,
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,1.5,0.5,ptb,13.67252224479472,2.7744431801009384,19.248782873153687,Ours (this repo); KV-ROBIN + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,1.5,0.5,c4,14.841157381944331,3.305535369351823,19.145236015319824,Ours (this repo); KV-ROBIN + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,2.0,0.5,ptb,12.663484269486151,1.765405204792371,19.33843159675598,Ours (this repo); KV-ROBIN + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,2.0,0.5,c4,13.599042536151288,2.063420523558777,19.35586977005005,Ours (this repo); KV-ROBIN + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,2.5,0.5,ptb,11.375908667436615,0.477829602742835,19.33825373649597,Ours (this repo); KV-ROBIN + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,2.5,0.5,c4,12.120171473317797,0.5845494607252864,19.506221055984497,Ours (this repo); KV-ROBIN + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,3.0,0.5,ptb,11.232478289979824,0.3343992252860452,19.44857621192932,Ours (this repo); KV-ROBIN + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,3.0,0.5,c4,11.875505773923802,0.3398837613312917,19.55214071273804,Ours (this repo); KV-ROBIN + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,4.0,0.5,ptb,11.026783170703288,0.1287041060095077,19.484960794448853,Ours (this repo); KV-ROBIN + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,4.0,0.5,c4,11.68006606311802,0.1444440505255109,19.480674982070923,Ours (this repo); KV-ROBIN + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,1.5,0.5,ptb,13.17413475899352,2.2760556942997408,18.92825102806092,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,1.5,0.5,c4,14.61778993993953,3.0821679273470206,18.91975426673889,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,2.0,0.5,ptb,12.3489998460844,1.4509207813906198,19.09517431259156,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,2.0,0.5,c4,13.52389013809502,1.9882681255025112,19.058485507965088,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,2.5,0.5,ptb,11.754402380916565,0.8563233162227846,19.307181119918823,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,2.5,0.5,c4,12.782908017869484,1.2472860052769723,19.28892517089844,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,3.0,0.5,ptb,11.591128369612813,0.6930493049190325,19.40540647506714,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,3.0,0.5,c4,12.49694033791322,0.9613183253207112,19.511394262313843,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,4.0,0.5,ptb,11.246739570685154,0.3486605059913739,19.432297945022583,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,4.0,0.5,c4,11.97980416831528,0.4441821557227694,19.497380018234253,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,0.5,0.5,wikitext2,9.952980112940748,3.8822748213849128,16.97009539604187,Ours (this repo); KV-COBRA with MSE allocator
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,0.5,0.5,ptb,19.253935352801527,8.355856288107747,17.141322374343872,Ours (this repo); KV-COBRA with MSE allocator
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,0.5,0.5,c4,19.306989455025303,7.771367442432796,17.40504813194275,Ours (this repo); KV-COBRA with MSE allocator
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,1.0,0.5,wikitext2,8.222741924596683,2.152036633040849,18.52103161811829,Ours (this repo); KV-COBRA with MSE allocator
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,1.0,0.5,ptb,14.776411218079364,3.878332153385584,18.68129324913025,Ours (this repo); KV-COBRA with MSE allocator
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-MSE,k_only,1.0,0.5,c4,16.276276611758377,4.740654599165866,18.82226300239563,Ours (this repo); KV-COBRA with MSE allocator
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,0.5,0.5,wikitext2,10.463008395990594,4.39230310443476,18.088001251220703,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,0.5,0.5,ptb,20.92424791897632,10.026168854282536,18.354665279388428,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,0.5,0.5,c4,20.979980112224546,9.444358099632032,18.376304864883423,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,1.0,0.5,wikitext2,8.122543536371854,2.05183824481602,18.925349712371823,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,1.0,0.5,ptb,15.109919577731269,4.2118405130374885,18.7807559967041,Ours; KL reordering + Hadamard rotation
+qwen25_7b,43,Qwen/Qwen2.5-7B-Instruct,KV-COBRA-KL,k_only,1.0,0.5,c4,16.525239217198664,4.989617204606153,18.79435396194458,Ours; KL reordering + Hadamard rotation
