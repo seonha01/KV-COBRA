@@ -1,0 +1,6 @@
+model,seed,method,kv_side,bits_per_dim,c1_rounding,arc_c,hellaswag,piqa,winogrande,mmlu,mean,wall_s
+llama31_8b,45,FP16,fp16,16.0,-,39.5,49.5,80.5,72.0,35.5,55.4,88.91537094116211
+llama31_8b,45,KV-COBRA-MSE,k_only,0.5,floor,34.5,46.0,74.0,65.5,30.0,50.0,1031.3264479637146
+llama31_8b,45,KV-COBRA-MSE,k_only,1.0,floor,35.0,47.0,76.0,64.0,34.5,51.3,1170.7729406356812
+llama31_8b,45,KV-COBRA-KL,k_only,0.5,floor,31.0,47.5,74.5,61.0,27.0,48.2,1030.9671618938446
+llama31_8b,45,KV-COBRA-KL,k_only,1.0,floor,35.0,46.5,76.0,69.5,34.0,52.2,1172.3985629081726

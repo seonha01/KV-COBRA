@@ -1,0 +1,6 @@
+model,seed,method,kv_side,bits_per_dim,c1_rounding,arc_c,hellaswag,piqa,winogrande,mmlu,mean,wall_s
+mistral7b,45,FP16,fp16,16.0,-,42.5,50.5,80.0,72.0,36.5,56.3,86.78702187538147
+mistral7b,45,KV-COBRA-MSE,k_only,0.5,floor,38.0,50.0,78.0,72.0,36.0,54.8,1048.900913476944
+mistral7b,45,KV-COBRA-MSE,k_only,1.0,floor,42.5,49.5,78.5,68.0,33.5,54.4,1170.24888753891
+mistral7b,45,KV-COBRA-KL,k_only,0.5,floor,35.5,50.5,76.5,64.5,34.5,52.3,1038.396026134491
+mistral7b,45,KV-COBRA-KL,k_only,1.0,floor,42.0,50.5,78.0,69.5,35.0,55.0,1173.838386297226
