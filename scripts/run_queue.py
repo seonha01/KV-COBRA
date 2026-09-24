@@ -14,7 +14,9 @@ finish first:
 See docs/REPRODUCTION.md for why two C1 rounding modes exist.
 
 Workers (one per GPU) pull the next job; every runner is resumable, so the
-queue can be stopped and restarted at any time.
+queue can be stopped and restarted at any time. Jobs are claimed through
+lock files in the log directory, so several queue instances (e.g. started
+at different times on different GPUs) can share the same job list safely.
 
     python scripts/run_queue.py --gpus 0 1 2
     python scripts/run_queue.py --gpus 0 --models llama31_8b --seeds 43 --kinds ppl
@@ -68,7 +70,55 @@ def build_jobs(models, seeds, kinds, full_sweep_all_seeds: bool, skip_released_s
     return jobs
 
 
+def job_tag(kind, model, seed, bits, rounding) -> str:
+    return f"{kind}_{model}_seed{seed}_{rounding}_{'-'.join(str(b) for b in bits)}"
+
+
+def job_is_complete(kind, model, seed, bits, rounding) -> bool:
+    """True if the result CSV already holds every cell of this job (skip without loading a model)."""
+    import pandas as pd
+    csv = ROOT / "results" / kind / f"{model}_seed{seed}.csv"
+    if not csv.exists():
+        return False
+    df = pd.read_csv(csv)
+    if "c1_rounding" not in df.columns:
+        df["c1_rounding"] = "floor"
+    df["c1_rounding"] = df["c1_rounding"].fillna("floor")
+    if not (df.method == "FP16").any():
+        return False
+    n_ds = 3 if kind == "ppl" else 1
+    for name in ("KV-COBRA-MSE", "KV-COBRA-KL"):
+        for b in bits:
+            sel = df[(df.method == name) & (df.bits_per_dim.astype(float) == float(b))
+                     & (df.c1_rounding == rounding)]
+            if len(sel) < n_ds:
+                return False
+    return True
+
+
+def _claim(tag: str, log_dir: Path) -> bool:
+    """Atomically claim a job. Returns False if it is done or held by a live process."""
+    if (log_dir / f"{tag}.done").exists():
+        return False
+    lock = log_dir / f"{tag}.lock"
+    try:
+        fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        os.write(fd, str(os.getpid()).encode())
+        os.close(fd)
+        return True
+    except FileExistsError:
+        try:
+            pid = int(lock.read_text().strip() or 0)
+        except ValueError:
+            pid = 0
+        if pid and Path(f"/proc/{pid}").exists():
+            return False                      # another live queue instance owns it
+        lock.write_text(str(os.getpid()))     # stale lock (dead owner): take over
+        return True
+
+
 def worker(gpu: str, q: Queue, log_dir: Path, dry: bool):
+    log_dir.mkdir(parents=True, exist_ok=True)
     while True:
         try:
             kind, model, seed, bits, rounding = q.get_nowait()
@@ -77,18 +127,24 @@ def worker(gpu: str, q: Queue, log_dir: Path, dry: bool):
         cmd = [sys.executable, str(ROOT / "scripts" / RUNNER[kind]),
                "--model", model, "--seed", str(seed), "--c1-rounding", rounding,
                "--bits", *[str(b) for b in bits]]
-        tag = f"{kind}_{model}_seed{seed}_{rounding}_{'-'.join(str(b) for b in bits)}"
-        print(f"[gpu{gpu}] START {tag}  {time.strftime('%H:%M:%S')}", flush=True)
+        tag = job_tag(kind, model, seed, bits, rounding)
         if dry:
+            print(f"[gpu{gpu}] START {tag}  {time.strftime('%H:%M:%S')}", flush=True)
             q.task_done()
             continue
+        if not _claim(tag, log_dir):
+            q.task_done()
+            continue
+        print(f"[gpu{gpu}] START {tag}  {time.strftime('%H:%M:%S')}", flush=True)
         env = dict(os.environ, CUDA_VISIBLE_DEVICES=gpu)
-        log_dir.mkdir(parents=True, exist_ok=True)
         with open(log_dir / f"{tag}.log", "a") as f:
             t0 = time.time()
             rc = subprocess.call(cmd, env=env, stdout=f, stderr=subprocess.STDOUT)
         print(f"[gpu{gpu}] {'DONE' if rc == 0 else f'FAIL(rc={rc})'} {tag}  "
               f"{(time.time() - t0) / 60:.1f} min", flush=True)
+        if rc == 0:
+            (log_dir / f"{tag}.done").touch()
+        (log_dir / f"{tag}.lock").unlink(missing_ok=True)
         q.task_done()
 
 
@@ -108,7 +164,16 @@ def main() -> None:
     a = p.parse_args()
 
     jobs = build_jobs(a.models, a.seeds, a.kinds, a.full_sweep_all_seeds, a.skip_released_sweep)
-    print(f"{len(jobs)} jobs on GPUs {a.gpus}")
+    if not a.dry_run:
+        a.log_dir.mkdir(parents=True, exist_ok=True)
+        n_done = 0
+        for j in jobs:
+            if job_is_complete(*j):
+                (a.log_dir / f"{job_tag(*j)}.done").touch()
+                n_done += 1
+        print(f"{len(jobs)} jobs on GPUs {a.gpus} ({n_done} already complete in results/)")
+    else:
+        print(f"{len(jobs)} jobs on GPUs {a.gpus}")
     q: Queue = Queue()
     for j in jobs:
         q.put(j)
