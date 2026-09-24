@@ -1,0 +1,2 @@
+model,seed,method,kv_side,bits_per_dim,c1_rounding,narrativeqa,qasper,multifieldqa_en,hotpotqa,musique,mean,wall_s
+mistral7b,44,FP16,fp16,16.0,-,11.379703818183206,15.216878829949588,19.449923309570675,7.515912242685699,4.156925919123623,11.54386882390256,466.48991656303406
