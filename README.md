@@ -34,10 +34,10 @@ Please refer to the **project webpage** for:
 ## 📄 Citation
 
 ```bibtex
-@inproceedings{ha2026kvcobra,
-  title     = {KV-COBRA: KV Cache Compression via Co-Optimized Bit-Rank Allocation},
-  author    = {Ha, Sihyeon and Lee, Jaeho and Jeon, Yo-Seb},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  year      = {2026}
+@article{ha2026kv,
+  title={KV-COBRA: KV Cache Compression via Co-Optimized Bit-Rank Allocation},
+  author={Ha, Sihyeon and Lee, Jaeho and Jeon, Yo-Seb},
+  journal={arXiv preprint arXiv:2609.24298},
+  year={2026}
 }
 ```
