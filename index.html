@@ -122,99 +122,81 @@
   </div>
 </section>
 
+<style>
+  .kv-accent { color: #7a1020; }
+  section.hero > .container { width: 100%; }
+  .columns > .column { min-width: 0; }
+  .kv-stat { border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); padding: 1.4rem 1rem; height: 100%; background: #fff; }
+  .kv-stat .kv-num { font-size: 2.4rem; font-weight: 700; line-height: 1.1; color: #7a1020; font-family: 'Google Sans', sans-serif; }
+  .kv-stat .kv-lbl { margin-top: 0.4rem; font-size: 0.95rem; color: #4a4a4a; }
+  .kv-tldr { border-left: 4px solid #7a1020; background: #fbf5f6; padding: 1rem 1.25rem; border-radius: 4px; }
+  .kv-table { min-width: 760px; width: 100%; border-collapse: collapse; margin: 1rem auto; }
+  .kv-table th, .kv-table td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+  .kv-table td:first-child, .kv-table th:first-child { text-align: left; }
+  .kv-table .kv-ours { background-color: #fbf0f2; }
+  @media (max-width: 768px) { .content.has-text-justified, .kv-tldr { text-align: left !important; } }
+  .kv-fig-cap { font-size: 0.9rem; color: #555; margin-top: 0.4rem; text-align: center; }
+</style>
 
-<!-- Teaser video-->
+
+<!-- Teaser -->
 <section class="hero teaser">
   <div class="container is-max-desktop">
     <div class="hero-body">
-      <!-- <video poster="" id="tree" autoplay controls muted loop height="100%"> -->
-        <!-- Your video here -->
-        <!-- <source src="static/videos/banner_video.mp4" -->
-        <!-- type="video/mp4"> -->
-      <!-- </video> -->
       <img src="static/images/hero.png"
       class="interpolation-image"
-      alt="KV-COBRA Overview"
-      style="width: 100%; display: block; margin: 0 auto; margin-bottom: 2rem;" />
-      <h2 class="subtitle has-text-centered">
-        Attention heads differ by more than 100&times; in how compressible their KV cache is. KV-COBRA picks the rank and the bit-width of every head jointly and moves the bit budget to the heads that need it, so the cache stays usable down to 0.5 bits per dimension.
-      </h2>
+      alt="KV-COBRA overview"
+      style="width: 100%; display: block; margin: 0 auto; margin-bottom: 1.5rem;" />
+      <div class="kv-tldr content has-text-justified">
+        <strong>TL;DR.</strong> At extreme bit rates, what limits KV-cache compression is not the quantizer but how the bit budget is split across attention heads. KV-COBRA chooses the retained rank and the bit-width of every head jointly, moves budget to the heads that need it, and keeps the standard rotate-and-quantize kernel. The cache stays usable down to 0.5 bits per dimension.
+      </div>
     </div>
   </div>
 </section>
-<!-- End teaser video -->
 
 
-
-<!-- Paper abstract -->
+<!-- Highlights -->
 <section class="section hero is-light">
   <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered is-variable is-3">
+      <div class="column">
+        <div class="kv-stat">
+          <div class="kv-num">&gt;100&times;</div>
+          <div class="kv-lbl">spread in per-head distortion under a uniform 2-bpd budget (LLaMA-3.1-8B, 256 KV heads)</div>
+        </div>
+      </div>
+      <div class="column">
+        <div class="kv-stat">
+          <div class="kv-num">0.5 bpd</div>
+          <div class="kv-lbl">lowest budget evaluated, where uniform-allocation baselines collapse</div>
+        </div>
+      </div>
+      <div class="column">
+        <div class="kv-stat">
+          <div class="kv-num">1.8&times;</div>
+          <div class="kv-lbl">faster attention primitive than FP16 SDPA at rank 16, 32k&ndash;128k tokens</div>
+        </div>
+      </div>
+      <div class="column">
+        <div class="kv-stat">
+          <div class="kv-num">0</div>
+          <div class="kv-lbl">per-token overhead: allocation runs once at calibration, in under 200 ms</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Abstract -->
+<section class="section hero">
+  <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
-      <div class="column is-full">
-        <h2 class="title is-3">📊 Main Results</h2>
-        <div class="content has-text-justified" style="overflow-x: auto;">
-          <table style="min-width: 800px; width: 100%; border-collapse: collapse; margin: 1rem auto;">
-            <thead>
-              <tr>
-                <th style="padding: 12px; border: 1px solid #ccc; text-align: left;"></th>
-                <th colspan="3" style="padding: 12px; border: 1px solid #ccc; text-align: center; background-color: #f0f0f0;">LLaMA-3.1-8B</th>
-                <th colspan="3" style="padding: 12px; border: 1px solid #ccc; text-align: center; background-color: #f0f0f0;">Mistral-7B-v0.3</th>
-                <th colspan="3" style="padding: 12px; border: 1px solid #ccc; text-align: center; background-color: #f0f0f0;">Qwen2.5-7B-Instruct</th>
-              </tr>
-              <tr>
-                <th style="padding: 12px; border: 1px solid #ccc; text-align: left;"><strong>Metric</strong></th>
-                <th style="padding: 12px; border: 1px solid #ccc; text-align: center;"><strong>FP16</strong></th>
-                <th style="padding: 12px; border: 1px solid #ccc; text-align: center;"><strong>MSE</strong></th>
-                <th style="padding: 12px; border: 1px solid #ccc; text-align: center; background-color: #e8f5e9;"><strong>KL</strong></th>
-                <th style="padding: 12px; border: 1px solid #ccc; text-align: center;"><strong>FP16</strong></th>
-                <th style="padding: 12px; border: 1px solid #ccc; text-align: center;"><strong>MSE</strong></th>
-                <th style="padding: 12px; border: 1px solid #ccc; text-align: center; background-color: #e8f5e9;"><strong>KL</strong></th>
-                <th style="padding: 12px; border: 1px solid #ccc; text-align: center;"><strong>FP16</strong></th>
-                <th style="padding: 12px; border: 1px solid #ccc; text-align: center;"><strong>MSE</strong></th>
-                <th style="padding: 12px; border: 1px solid #ccc; text-align: center; background-color: #e8f5e9;"><strong>KL</strong></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style="padding: 12px; border: 1px solid #ccc;">Perplexity (&darr;)</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">7.67</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">24.76</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center; background-color: #e8f5e9;"><strong>20.26</strong></td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">13.15</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">27.18</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center; background-color: #e8f5e9;"><strong>15.90</strong></td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">9.50</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;"><strong>12.97</strong></td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center; background-color: #e8f5e9;">13.20</td>
-              </tr>
-              <tr>
-                <td style="padding: 12px; border: 1px solid #ccc;">Zero-shot accuracy (&uarr;)</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">55.4</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">51.5</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center; background-color: #e8f5e9;"><strong>51.6</strong></td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">56.3</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">54.6</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center; background-color: #e8f5e9;"><strong>55.1</strong></td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">54.1</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">51.7</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center; background-color: #e8f5e9;"><strong>52.5</strong></td>
-              </tr>
-              <tr>
-                <td style="padding: 12px; border: 1px solid #ccc;">LongBench F1 (&uarr;)</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">15.80</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">9.25</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center; background-color: #e8f5e9;"><strong>11.36</strong></td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">11.54</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">9.55</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center; background-color: #e8f5e9;"><strong>10.72</strong></td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">10.64</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center;">9.10</td>
-                <td style="padding: 12px; border: 1px solid #ccc; text-align: center; background-color: #e8f5e9;"><strong>9.53</strong></td>
-              </tr>
-            </tbody>
-          </table>
-          <p style="margin-top: 1rem; text-align: center;">
-            <small><strong>Table 1:</strong> Keys compressed to <strong>1 bit per dimension</strong> (keys only, pre-RoPE), mean over 5 seeds. MSE = KV-COBRA<sub>MSE</sub>, KL = KV-COBRA<sub>KL</sub> (main method). Perplexity is the mean over WikiText-2 / PTB / C4; zero-shot is the mean over ARC-C, HellaSwag, PIQA, WinoGrande, MMLU; LongBench is the mean F1 over five QA tasks. Bold marks the better of the two variants.</small>
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            What limits KV-cache compression at extreme bit-rates? We argue that it is not the choice of compression scheme, but how its budget is allocated across attention heads. Existing methods apply rank and bit-width uniformly, ignoring that each head has a different optimal mix of rank truncation and quantization. We show that <em>co-optimizing rank and bit-width per head</em>&mdash;using only standard low-rank projection and scalar quantization&mdash;dominates uniform allocation, with the largest gains at low bit-rates. Our method, <strong>KV-COBRA</strong> (<em>Co-Optimized Bit-Rank Allocation</em>), formalizes this as a resource-allocation problem: it balances rank-truncation loss against quantization loss within each head, then redistributes budget across heads to minimize total distortion. A fused Hadamard rotation equalizes per-channel variance, and reordering the SVD basis by attention-KL importance makes the solver query-aware. The same allocator extends to joint K+V compression. On perplexity, zero-shot, and long-context benchmarks from 0.5 to 4 bits per dimension (bpd), KV-COBRA shows the smallest accuracy degradation among evaluated methods at low bpd, with no per-token overhead.
           </p>
         </div>
       </div>
@@ -222,101 +204,36 @@
   </div>
 </section>
 
-<!-- End paper abstract -->
 
-
-<!-- Observation -->
-<section class="section hero">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">🔍 Key Contributions</h2>
-        <div class="content has-text-justified">
-          <ul>
-            <li><strong>A joint rank-bit optimizer with optimality conditions</strong>: C1 selects each head's (r, b) optimum by balancing truncation loss against quantization loss, and C2 redistributes the total budget across heads by equalizing marginal distortion. Both are gradient-free, run once at calibration time, and add no per-token overhead.</li>
-            <li><strong>A query-aware upgrade via attention-KL reordering</strong>: A second-order bound on the attention-KL divergence yields a per-direction importance weight w<sub>i</sub> = &sigma;<sup>2</sup><sub>Q,i</sub> &sigma;<sup>2</sup><sub>K,i</sub>. Reordering the SVD basis by this weight before C1/C2 makes the solver optimize attention quality instead of reconstruction MSE.</li>
-            <li><strong>Graceful sub-1-bpd compression with no new kernel</strong>: KV-COBRA reuses the standard rotate-and-quantize kernel and stays accurate down to 0.5 bits per dimension where uniform-allocation baselines collapse. The same allocator extends to joint K+V compression.</li>
-          </ul>
-
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- Paper abstract -->
+<!-- Method -->
 <section class="section hero is-light">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">Abstract</h2>
+        <h2 class="title is-3">How KV-COBRA Works</h2>
         <div class="content has-text-justified">
-
-              <p>
-                What limits KV-cache compression at extreme bit-rates? We argue that it is not the choice of compression scheme, but how its budget is allocated across attention heads. Existing methods apply rank and bit-width uniformly, ignoring that each head has a different optimal mix of rank truncation and quantization. We show that <em>co-optimizing rank and bit-width per head</em>&mdash;using only standard low-rank projection and scalar quantization&mdash;dominates uniform allocation, with the largest gains at low bit-rates. Our method, <strong>KV-COBRA</strong> (<em>Co-Optimized Bit-Rank Allocation</em>), formalizes this as a resource-allocation problem: it balances rank-truncation loss against quantization loss within each head, then redistributes budget across heads to minimize total distortion. A fused Hadamard rotation equalizes per-channel variance, and reordering the SVD basis by attention-KL importance makes the solver query-aware. The same allocator extends to joint K+V compression. On perplexity, zero-shot, and long-context benchmarks from 0.5 to 4 bits per dimension (bpd), KV-COBRA shows the smallest accuracy degradation among evaluated methods at low bpd, with no per-token overhead.
-              </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- End paper abstract -->
-
-
-<!-- Problem Statement -->
-<section class="section hero">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Problem: One (r, b) Does Not Fit All Heads</h2>
-        <div class="content has-text-justified">
-               <p>
-                Generating each token with a large language model requires loading the entire key-value (KV) cache. Under long contexts the cache exceeds the model weights in size, so decoding becomes memory-bandwidth-bound. Per-token compressors keep every token but store it at fewer bits per dimension, and the strongest of them apply a top-<em>r</em> SVD truncation followed by <em>b</em>-bit quantization of the retained coordinates.
-              </p>
-              <p>
-                In these methods the rank <em>r</em> and the bit-width <em>b</em> are global hyperparameters applied uniformly to <em>all</em> attention heads. Yet heads differ dramatically in how their cache spectrum concentrates: under a uniform 2-bpd budget the per-head distortion spans more than 100&times; across the 256 KV heads of LLaMA-3.1-8B. A single <em>r</em> is wasteful for concentrated heads and inadequate for diffuse ones, and the same holds for a single <em>b</em>. The two choices are also coupled: the best rank for a head depends on its bit-width and vice versa.
-              </p>
-              <p>
-                <strong>KV-COBRA</strong> treats this as a classical rate-distortion allocation problem. Each head has a distortion curve over its rate, jointly over <em>r</em> and <em>b</em>, and the global task is to distribute the total rate across heads so that the sum of distortions is minimized. The resulting first-order conditions give a per-head rule for splitting the rate between rank and bits and a marginal-distortion-equalizing schedule across heads, both solvable in a few iterations at calibration time.
-              </p>
-
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-
-
-<!-- Framework -->
-<section class="section hero is is-light">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">KV-COBRA Framework</h2>
-        <div class="content has-text-justified">
+          <p>
+            Rank <em>r</em> and bit-width <em>b</em> are usually global hyperparameters, yet heads differ widely in how their key spectrum concentrates. A single (<em>r</em>, <em>b</em>) wastes bits on concentrated heads and starves diffuse ones, and the two choices are coupled. KV-COBRA treats this as a rate-distortion allocation problem with the per-head distortion
+          </p>
+          <p class="has-text-centered">
+            <em>D</em>(<em>r</em>, <em>b</em>) = &sum;<sub>i&gt;r</sub> w<sub>i</sub> + q(<em>b</em>) &sum;<sub>i&le;r</sub> w<sub>i</sub>,&nbsp;&nbsp; q(<em>b</em>) = 2<sup>&minus;2b</sup>/12
+          </p>
           <img src="static/images/pipeline.png"
                class="interpolation-image"
-               alt="KV-COBRA Pipeline"
-               style="max-width: 100%;" />
-               <p></p>
-              <p>
-                <strong>Distortion model:</strong> Keeping the top-<em>r</em> SVD directions of a head discards the tail of its spectrum, and quantizing the retained coordinates at <em>b</em> bits adds a Bennett-type term proportional to 2<sup>&minus;2b</sup>. The per-head distortion is <em>D</em>(<em>r</em>, <em>b</em>) = &sum;<sub>i&gt;r</sub> w<sub>i</sub> + q(<em>b</em>) &sum;<sub>i&le;r</sub> w<sub>i</sub>, with w<sub>i</sub> the key eigenvalue for the MSE objective or the query&ndash;key variance product for the attention-KL objective.
-              </p>
-              <p>
-                <strong>C1 &mdash; per-head rank and bit-width together:</strong> Given a head's budget <em>B</em>, C1 enumerates the even rank grid, sets <em>b</em> = <em>B</em>/<em>r</em>, and keeps the (<em>r</em>, <em>b</em>) with the smallest distortion. At the optimum the projection-loss gain from two more directions matches the quantization-loss cost on the retained ones. This is an O(<em>d</em>/2) search per head, run once.
-              </p>
-              <p>
-                <strong>C2 &mdash; cross-head redistribution:</strong> Using C1 as a black-box oracle <em>D</em>*(<em>B</em>), C2 moves budget between heads until their marginal distortions equalize, the water-filling condition of rate-distortion theory. A damped proportional update converges within five rounds on every tested model, and an exact dynamic-programming solver reaches the same perplexity within noise at 25&ndash;50&times; the cost.
-              </p>
-              <p>
-                <strong>Per-channel equalization via Hadamard rotation:</strong> The retained SVD coordinates have variances that decay by orders of magnitude. A Walsh&ndash;Hadamard rotation with a fixed random sign flip is fused into the projection matrix, so at zero latency every channel has the same expected variance and a single uniform <em>b</em>-bit quantizer per head suffices.
-              </p>
-              <p>
-                <strong>Attention-KL reordering (KV-COBRA<sub>KL</sub>):</strong> Downstream quality depends on the attention output, not on reconstruction error. A second-order expansion of the softmax KL divergence shows that the right weight for a direction is &sigma;<sup>2</sup><sub>Q,i</sub> &sigma;<sup>2</sup><sub>K,i</sub>: a direction with a small key eigenvalue may still be heavily attended. Reordering the SVD basis by this weight and plugging it into C1/C2 makes the whole allocation query-aware. The complete C1+C2 calibration takes under 200 ms on 7&ndash;8B models.
-              </p>
+               alt="KV-COBRA pipeline"
+               style="max-width: 100%; margin: 0.5rem 0 1rem;" />
+          <p>
+            <strong>C1, per head.</strong> For a head budget <em>B</em>, enumerate the even ranks with <em>b</em> = <em>B</em>/<em>r</em> and keep the pair with the smallest <em>D</em>. At the optimum, the truncation loss saved by two more directions equals the extra quantization loss on the retained ones.
+          </p>
+          <p>
+            <strong>C2, across heads.</strong> With C1 as an oracle, move budget between heads until their marginal distortions equalize, the water-filling condition of rate-distortion theory. A damped update converges in five rounds.
+          </p>
+          <p>
+            <strong>Hadamard rotation.</strong> A Walsh&ndash;Hadamard transform with a fixed random sign flip, folded into the projection, flattens the steeply decaying variances of the retained coordinates, so one uniform quantizer per head suffices.
+          </p>
+          <p>
+            <strong>Attention-KL reordering.</strong> A second-order bound on the softmax KL gives each direction the weight w<sub>i</sub> = &sigma;<sup>2</sup><sub>Q,i</sub>&sigma;<sup>2</sup><sub>K,i</sub> instead of the key eigenvalue alone. Sorting the basis by this weight before C1/C2 gives KV-COBRA<sub>KL</sub>, the main method. With w<sub>i</sub> = &lambda;<sub>i</sub> the same solver gives KV-COBRA<sub>MSE</sub>.
+          </p>
         </div>
       </div>
     </div>
@@ -324,85 +241,120 @@
 </section>
 
 
-<!-- Main result -->
+<!-- Results -->
 <section class="section hero">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Experimental Results</h2>
+      <div class="column is-full">
+        <h2 class="title is-3">Results</h2>
+        <div class="content has-text-justified" style="overflow-x: auto;">
+          <table class="kv-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th colspan="3" style="background-color: #f5f5f5;">LLaMA-3.1-8B</th>
+                <th colspan="3" style="background-color: #f5f5f5;">Mistral-7B-v0.3</th>
+                <th colspan="3" style="background-color: #f5f5f5;">Qwen2.5-7B-Instruct</th>
+              </tr>
+              <tr>
+                <th>1 bit / dim</th>
+                <th>FP16</th><th>MSE</th><th class="kv-ours">KL</th>
+                <th>FP16</th><th>MSE</th><th class="kv-ours">KL</th>
+                <th>FP16</th><th>MSE</th><th class="kv-ours">KL</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Perplexity (&darr;)</td>
+                <td>7.67</td><td>24.76</td><td class="kv-ours"><strong>20.26</strong></td>
+                <td>13.15</td><td>27.18</td><td class="kv-ours"><strong>15.90</strong></td>
+                <td>9.50</td><td><strong>12.97</strong></td><td class="kv-ours">13.20</td>
+              </tr>
+              <tr>
+                <td>Zero-shot acc. (&uarr;)</td>
+                <td>55.4</td><td>51.5</td><td class="kv-ours"><strong>51.6</strong></td>
+                <td>56.3</td><td>54.6</td><td class="kv-ours"><strong>55.1</strong></td>
+                <td>54.1</td><td>51.7</td><td class="kv-ours"><strong>52.5</strong></td>
+              </tr>
+              <tr>
+                <td>LongBench F1 (&uarr;)</td>
+                <td>15.80</td><td>9.25</td><td class="kv-ours"><strong>11.36</strong></td>
+                <td>11.54</td><td>9.55</td><td class="kv-ours"><strong>10.72</strong></td>
+                <td>10.64</td><td>9.10</td><td class="kv-ours"><strong>9.53</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="kv-fig-cap">
+            Keys compressed pre-RoPE to 1 bit per dimension, mean over 5 seeds. MSE = KV-COBRA<sub>MSE</sub>, KL = KV-COBRA<sub>KL</sub>. Perplexity averages WikiText-2, PTB and C4; zero-shot averages ARC-C, HellaSwag, PIQA, WinoGrande and MMLU; LongBench averages five QA tasks. Bold marks the better variant.
+          </p>
+        </div>
         <div class="content has-text-justified">
-		<img src="static/images/main_results.png"
-		class="interpolation-image"
-		alt="Main results across bit rates"
-		style="max-width: 100%;"/>
-    <p>
-      We evaluate <strong>KV-COBRA</strong> on LLaMA-3.1-8B, Mistral-7B-v0.3, and Qwen2.5-7B-Instruct against KIVI, KVQuant, GEAR, TurboQuant, SVDq, and KQ-SVD, sweeping 0.5 to 4 bits per dimension on WikiText-2 / PTB / C4 perplexity, five zero-shot reasoning tasks, and five LongBench tasks. At 2 bpd and above the choice of allocator barely matters. At low bit rates KV-COBRA<sub>KL</sub> degrades most gracefully: integer-only quantizers cannot enter the regime, uniform-budget SVD baselines degrade sharply, and at a nominal 1-bpd budget KV-COBRA<sub>KL</sub> nearly doubles the LongBench F1 of the integer-only baselines.
-    </p>
-    <img src="static/images/rstar_diversity.png"
-    class="interpolation-image"
-    alt="Per-head rank and bit-width chosen by C1"
-    style="max-width: 100%;"/>
-    <p>
-      The per-head (<em>r</em>*, <em>b</em>*) optima selected by C1 spread over many operating points and shift with the budget and the model, which is exactly why a single fixed (<em>r</em>, <em>b</em>) cannot serve every head. The MSE variant wins on perplexity, its direct objective, while the KL variant wins on LongBench and matches on zero-shot, the split predicted by the two objectives.
-    </p>
-    <p>
-      The same allocator extends to joint K+V compression at a fixed total budget, where V-heavy splits dominate on perplexity and LongBench, reflecting the flatter spectrum of values. The pattern also carries over to LLaMA-3.1-70B, Qwen2.5-72B, and Mixtral-8x7B, where KV-COBRA<sub>KL</sub> stays closest to FP16 on every metric.
-    </p>
+          <img src="static/images/main_results.png"
+               class="interpolation-image"
+               alt="Results across bit rates"
+               style="display: block; max-width: 82%; margin: 1.5rem auto 0;" />
+          <p class="kv-fig-cap">Sweep from 0.5 to 4 bits per dimension against KIVI, KVQuant, GEAR, TurboQuant, SVDq and KQ-SVD. Dashed lines mark FP16.</p>
+          <p>
+            Above 2 bpd the allocator barely matters. Below it, the methods separate: integer-only quantizers cannot reach the regime, uniform-budget SVD baselines degrade sharply, and KV-COBRA<sub>KL</sub> degrades most gracefully, nearly doubling the LongBench F1 of the integer-only baselines at a nominal 1-bpd budget. KV-COBRA<sub>MSE</sub> wins on perplexity and KV-COBRA<sub>KL</sub> on LongBench, the split the two objectives predict. The pattern carries over to LLaMA-3.1-70B, Qwen2.5-72B and Mixtral-8x7B.
+          </p>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Closer look -->
+
+<!-- Per-head allocation -->
 <section class="section hero is-light">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">Efficiency Analysis</h2>
+        <h2 class="title is-3">No Single (r, b) Fits All Heads</h2>
+        <div class="content has-text-justified">
+          <img src="static/images/rstar_diversity.png"
+               class="interpolation-image"
+               alt="Per-head rank and bit-width chosen by C1"
+               style="max-width: 100%;" />
+          <p class="kv-fig-cap">Per-head (r*, b*) selected by C1 on three models, colored by target bpd.</p>
+          <p>
+            The optima spread over many operating points and shift with the budget and the model. This is the freedom a global hyperparameter throws away, and the reason per-head allocation pays off most at low bit rates.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Efficiency -->
+<section class="section hero">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Efficiency</h2>
         <div class="content has-text-justified">
           <div style="overflow-x: auto; margin: 1rem 0;">
-            <table style="min-width: 500px; width: 100%; border-collapse: collapse;">
-              <thead style="background-color: #f0f0f0;">
-                <tr>
-                  <th style="padding: 12px; border: 1px solid #ccc;"><strong>Context length</strong></th>
-                  <th style="padding: 12px; border: 1px solid #ccc;"><strong>r = 16, b = 2</strong></th>
-                  <th style="padding: 12px; border: 1px solid #ccc;"><strong>r = 16, b = 4</strong></th>
-                  <th style="padding: 12px; border: 1px solid #ccc;"><strong>r = 32, b = 2</strong></th>
-                  <th style="padding: 12px; border: 1px solid #ccc;"><strong>r = 64, b = 2</strong></th>
+            <table class="kv-table" style="min-width: 500px;">
+              <thead>
+                <tr style="background-color: #f5f5f5;">
+                  <th>Context</th>
+                  <th>r = 16, b = 2</th>
+                  <th>r = 16, b = 4</th>
+                  <th>r = 32, b = 2</th>
+                  <th>r = 64, b = 2</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td style="padding: 12px; border: 1px solid #ccc;">32k</td>
-                  <td style="padding: 12px; border: 1px solid #ccc;"><strong>1.83&times;</strong></td>
-                  <td style="padding: 12px; border: 1px solid #ccc;"><strong>1.84&times;</strong></td>
-                  <td style="padding: 12px; border: 1px solid #ccc;"><strong>1.77&times;</strong></td>
-                  <td style="padding: 12px; border: 1px solid #ccc;"><strong>1.40&times;</strong></td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px; border: 1px solid #ccc;">64k</td>
-                  <td style="padding: 12px; border: 1px solid #ccc;"><strong>1.79&times;</strong></td>
-                  <td style="padding: 12px; border: 1px solid #ccc;"><strong>1.85&times;</strong></td>
-                  <td style="padding: 12px; border: 1px solid #ccc;"><strong>1.82&times;</strong></td>
-                  <td style="padding: 12px; border: 1px solid #ccc;"><strong>1.48&times;</strong></td>
-                </tr>
-                <tr style="background-color: #e8f5e9;">
-                  <td style="padding: 12px; border: 1px solid #ccc;">128k</td>
-                  <td style="padding: 12px; border: 1px solid #ccc;"><strong>1.89&times;</strong></td>
-                  <td style="padding: 12px; border: 1px solid #ccc;"><strong>1.88&times;</strong></td>
-                  <td style="padding: 12px; border: 1px solid #ccc;"><strong>1.85&times;</strong></td>
-                  <td style="padding: 12px; border: 1px solid #ccc;"><strong>1.49&times;</strong></td>
-                </tr>
+                <tr><td>32k</td><td><strong>1.83&times;</strong></td><td><strong>1.84&times;</strong></td><td>1.77&times;</td><td>1.40&times;</td></tr>
+                <tr><td>64k</td><td><strong>1.79&times;</strong></td><td><strong>1.85&times;</strong></td><td>1.82&times;</td><td>1.48&times;</td></tr>
+                <tr><td>128k</td><td><strong>1.89&times;</strong></td><td><strong>1.88&times;</strong></td><td>1.85&times;</td><td>1.49&times;</td></tr>
               </tbody>
             </table>
           </div>
-	<p>
-    Speedup of the per-layer attention primitive over FP16 scaled-dot-product attention (H<sub>q</sub> = 32, d = 128, CUDA-graph captured, RTX 6000 Ada). KV-COBRA stores the cache as packed <em>b</em>-bit codes with the Hadamard rotation folded into the basis, so dequantization and the inverse rotation run in one fused pass. At the retained rank used in the paper (r = 16) the primitive is 1.79&ndash;1.89&times; faster than FP16 across 32k&ndash;128k tokens, and the gain holds up to r = 64.
-	</p>
-	<p>
-		Everything KV-COBRA adds happens once at calibration time. The C1+C2 solver runs in under 200 ms on the 7&ndash;8B models, and the complete one-time calibration of LLaMA-3.1-70B, including the calibration forward passes and the eigendecomposition of all 640 KV heads, takes 18.3 s. At inference there is no per-token overhead beyond the standard rotate-and-quantize kernel shared with prior work.
-	</p>
+          <p class="kv-fig-cap">Per-layer attention primitive vs. FP16 SDPA (H<sub>q</sub> = 32, d = 128, CUDA graphs, RTX 6000 Ada).</p>
+          <p>
+            The cache is stored as packed <em>b</em>-bit codes with the rotation folded into the basis, so dequantization and the inverse rotation run in one fused pass. All allocation work happens once: the C1+C2 solve takes under 200 ms on 7&ndash;8B models, and the full calibration of LLaMA-3.1-70B takes 18.3 s.
+          </p>
         </div>
       </div>
     </div>
@@ -424,11 +376,12 @@
   	    <i class="fas fa-copy"></i>
 	  </button>
       <pre id="bibtex-block"><code>@article{ha2026kvcobra,
-		  title={KV-COBRA: KV Cache Compression via Co-Optimized Bit-Rank Allocation},
-		  author={Ha, Sihyeon and Lee, Jaeho and Jeon, Yo-Seb},
-		  journal={arXiv preprint arXiv:2609.24298},
-		  year={2026}
-		}</code></pre>
+  title   = {KV-COBRA: KV Cache Compression via Co-Optimized Bit-Rank Allocation},
+  author  = {Ha, Sihyeon and Lee, Jaeho and Jeon, Yo-Seb},
+  journal = {arXiv preprint arXiv:2609.24298},
+  year    = {2026}
+}</code></pre>
+    </div>
     </div>
 </section>
 <!--End BibTex citation -->
