@@ -2,6 +2,8 @@
 
 Reference implementation of *KV-COBRA: KV Cache Compression via Co-Optimized Bit-Rank Allocation* ([arXiv:2609.24298](https://arxiv.org/abs/2609.24298)).
 
+[Paper](https://arxiv.org/abs/2609.24298) · [Project page](https://seonha01.github.io/KV-COBRA/)
+
 The repo contains the method (per-head rank/bit allocation, C1 + C2, KL reordering, Hadamard rotate-and-quantize) and the three evaluation protocols of the paper's main results (perplexity, zero-shot, LongBench) for KV-COBRA-MSE, KV-COBRA-KL and FP16 on Llama-3.1-8B, Mistral-7B-v0.3 and Qwen2.5-7B-Instruct. Baselines, RULER and CUDA kernels are not included.
 
 ## Install
