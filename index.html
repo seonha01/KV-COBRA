@@ -146,9 +146,10 @@
       <img src="static/images/hero.png"
       class="interpolation-image"
       alt="KV-COBRA overview"
-      style="width: 100%; display: block; margin: 0 auto; margin-bottom: 1.5rem;" />
+      style="width: 100%; display: block; margin: 0 auto;" />
+      <p class="kv-fig-cap" style="margin-bottom: 1.5rem;"><strong>(a)</strong> The spectrum sets (r*, b*): one head against the layer's 7 others. <strong>(b)</strong> Heads differ: per-head distortion at a uniform 2 bpd spans 100&times; across 256 KV heads. <strong>(c)</strong> The Hadamard rotation flattens the per-channel variance of the retained subspace.</p>
       <div class="kv-tldr content has-text-justified">
-        <strong>TL;DR.</strong> At extreme bit rates, what limits KV-cache compression is not the quantizer but how the bit budget is split across attention heads. KV-COBRA chooses the retained rank and the bit-width of every head jointly, moves budget to the heads that need it, and keeps the standard rotate-and-quantize kernel. The cache stays usable down to 0.5 bits per dimension.
+        <strong>TL;DR.</strong> The bottleneck of low-bit KV compression is allocation across heads, not the kernel itself. KV-COBRA picks the retained rank and the bit-width of every head jointly, redistributes the budget across heads, and reuses the standard rotate-and-quantize kernel. It stays accurate down to 0.5 bits per dimension with no per-token overhead.
       </div>
     </div>
   </div>
@@ -161,26 +162,26 @@
     <div class="columns is-centered has-text-centered is-variable is-3">
       <div class="column">
         <div class="kv-stat">
-          <div class="kv-num">&gt;100&times;</div>
-          <div class="kv-lbl">spread in per-head distortion under a uniform 2-bpd budget (LLaMA-3.1-8B, 256 KV heads)</div>
+          <div class="kv-num">100&times;</div>
+          <div class="kv-lbl">spread of per-head distortion at a uniform 2 bpd across the 256 KV heads of LLaMA-3.1-8B</div>
         </div>
       </div>
       <div class="column">
         <div class="kv-stat">
           <div class="kv-num">0.5 bpd</div>
-          <div class="kv-lbl">lowest budget evaluated, where uniform-allocation baselines collapse</div>
+          <div class="kv-lbl">KV-COBRA stays accurate where uniform-allocation baselines collapse</div>
         </div>
       </div>
       <div class="column">
         <div class="kv-stat">
           <div class="kv-num">1.8&times;</div>
-          <div class="kv-lbl">faster attention primitive than FP16 SDPA at rank 16, 32k&ndash;128k tokens</div>
+          <div class="kv-lbl">faster attention primitive than FP16 SDPA at r = 16, from 32k to 128k tokens</div>
         </div>
       </div>
       <div class="column">
         <div class="kv-stat">
           <div class="kv-num">0</div>
-          <div class="kv-lbl">per-token overhead: allocation runs once at calibration, in under 200 ms</div>
+          <div class="kv-lbl">per-token overhead: the C1+C2 allocation runs once at calibration, in under 200 ms</div>
         </div>
       </div>
     </div>
@@ -221,9 +222,10 @@
           <img src="static/images/pipeline.png"
                class="interpolation-image"
                alt="KV-COBRA pipeline"
-               style="max-width: 100%; margin: 0.5rem 0 1rem;" />
+               style="max-width: 100%; margin: 0.5rem 0 0;" />
+          <p class="kv-fig-cap" style="margin-bottom: 1.25rem;"><strong>Calibration.</strong> Per-head SVD of prefill keys; a two-level C1+C2 allocator freezes the basis, rank r* and bit-width b* of every head. <strong>Inference.</strong> Each key is rotated and truncated with H&middot;V<sup>T</sup> and quantized with its head's b*-bit quantizer. The kernel is shared by all heads; only the allocation changes.</p>
           <p>
-            <strong>C1, per head.</strong> For a head budget <em>B</em>, enumerate the even ranks with <em>b</em> = <em>B</em>/<em>r</em> and keep the pair with the smallest <em>D</em>. At the optimum, the truncation loss saved by two more directions equals the extra quantization loss on the retained ones.
+            <strong>C1, per head.</strong> For a head budget <em>B</em>, enumerate the even ranks <em>r</em>, set <em>b</em> &asymp; <em>B</em>/<em>r</em> clipped to [2, 8], and keep the pair with the smallest <em>D</em>, an O(<em>d</em>/2) search. At the optimum, the projection loss saved by two more directions matches the quantization loss added on the retained ones.
           </p>
           <p>
             <strong>C2, across heads.</strong> With C1 as an oracle, move budget between heads until their marginal distortions equalize, the water-filling condition of rate-distortion theory. A damped update converges in five rounds.
@@ -293,7 +295,7 @@
                class="interpolation-image"
                alt="Results across bit rates"
                style="display: block; max-width: 82%; margin: 1.5rem auto 0;" />
-          <p class="kv-fig-cap">Sweep from 0.5 to 4 bits per dimension against KIVI, KVQuant, GEAR, TurboQuant, SVDq and KQ-SVD. Dashed lines mark FP16.</p>
+          <p class="kv-fig-cap">Main k-only results from 0.5 to 4 bits per dimension against KIVI, KVQuant, GEAR, TurboQuant, SVDq and KQ-SVD. Dashed lines mark FP16; error bars are &plusmn;1 SD over 5 seeds.</p>
           <p>
             Above 2 bpd the allocator barely matters. Below it, the methods separate: integer-only quantizers cannot reach the regime, uniform-budget SVD baselines degrade sharply, and KV-COBRA<sub>KL</sub> degrades most gracefully, nearly doubling the LongBench F1 of the integer-only baselines at a nominal 1-bpd budget. KV-COBRA<sub>MSE</sub> wins on perplexity and KV-COBRA<sub>KL</sub> on LongBench, the split the two objectives predict. The pattern carries over to LLaMA-3.1-70B, Qwen2.5-72B and Mixtral-8x7B.
           </p>
