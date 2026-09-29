@@ -1,6 +1,6 @@
 # KV-COBRA
 
-Reference implementation of *KV-COBRA: KV Cache Compression via Co-Optimized Bit-Rank Allocation* ([arXiv:2609.24298](https://arxiv.org/abs/2609.24298)).
+Reference implementation of *KV-COBRA: KV Cache Compression via Co-Optimized Bit-Rank Allocation* (NeurIPS 2026, [arXiv:2609.24298](https://arxiv.org/abs/2609.24298)).
 
 [Paper](https://arxiv.org/abs/2609.24298) · [Project page](https://seonha01.github.io/KV-COBRA/)
 
@@ -63,10 +63,10 @@ docs/           REPRODUCTION.md, VERIFICATION.md
 ## Citation
 
 ```bibtex
-@article{ha2026kvcobra,
-  title   = {KV-COBRA: KV Cache Compression via Co-Optimized Bit-Rank Allocation},
-  author  = {Ha, Sihyeon and Lee, Jaeho and Jeon, Yo-Seb},
-  journal = {arXiv preprint arXiv:2609.24298},
-  year    = {2026}
+@inproceedings{ha2026kvcobra,
+  title     = {KV-COBRA: KV Cache Compression via Co-Optimized Bit-Rank Allocation},
+  author    = {Ha, Sihyeon and Lee, Jaeho and Jeon, Yo-Seb},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2026}
 }
 ```
